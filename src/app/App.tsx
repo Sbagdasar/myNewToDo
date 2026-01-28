@@ -14,9 +14,10 @@ import {TodolistItem} from "@/TodolistItem.tsx";
 import {CreateItemForm} from "@/CreateItemForm.tsx";
 import {NavButton} from "@/NavButton.ts";
 import {AppBar, Container, createTheme, CssBaseline, Grid, Paper, Switch, ThemeProvider, Toolbar} from "@mui/material";
-import type {RootState} from "@/app/store.ts";
 import {useAppSelector} from "@/common/hooks/useAppSelector.ts";
 import {useAppDispatch} from "@/common/hooks/useAppDispatch.ts";
+import {selectTodolists} from "@/model/todolists-selectors.ts";
+import {selectTasks} from "@/model/tasks-selectors.ts";
 
 
 export type Todolist = {
@@ -38,12 +39,11 @@ export type TasksState = Record<string, Task[]>
 type ThemeMode = 'dark' | 'light'
 
 export const App = () => {
-  const todolists = useAppSelector(state => state.todolists)
-  const tasks = useAppSelector<RootState, TasksState>(state => state.tasks)
+  const todolists = useAppSelector(selectTodolists)
+  const tasks = useAppSelector(selectTasks)
   const dispatch = useAppDispatch();
-
   const [themeMode, setThemeMode] = useState<ThemeMode>('light')
-
+debugger
   const theme = createTheme({
     palette: {
       mode: themeMode,
@@ -65,11 +65,10 @@ export const App = () => {
   const createTodolist = (title: string) => {
     const action = createTodolistAC(title)
     dispatch(action)
-    dispatch(action)
   }
 
   const deleteTodolist = (todolistId: string) => {
-    const action = deleteTodolistAC(todolistId)
+    const action = deleteTodolistAC({id:todolistId})
     dispatch(action)
     dispatch(action)
   }
@@ -83,7 +82,7 @@ export const App = () => {
   }
 
   const createTask = (todolistId: string, title: string) => {
-    dispatch(createTaskAC({todolistId, title}))
+    dispatch(createTaskAC({title, todolistId}))
   }
 
   const changeTaskStatus = (todolistId: string, taskId: string, isDone: boolean) => {

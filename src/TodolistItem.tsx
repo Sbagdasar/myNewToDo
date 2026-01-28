@@ -63,11 +63,11 @@ export const TodolistItem = (props: Props) => {
           </IconButton>
         </div>
         <CreateItemForm onCreateItem={createTaskHandler}/>
-        {tasks.length === 0 ? (
+        {tasks?.length === 0 ? (
             <p>Тасок нет</p>
         ) : (
             <List>
-              {tasks.map(task => {
+              {tasks?.map(task => {
                 const deleteTaskHandler = () => {
                   deleteTask(id, task.id)
                 }

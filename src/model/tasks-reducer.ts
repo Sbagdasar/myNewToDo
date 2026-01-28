@@ -1,70 +1,46 @@
 import type {Task, TasksState} from 'src/app/App.tsx'
-import type {CreateTodolistAction, DeleteTodolistAction} from './todolists-reducer'
+import {createAction, createReducer, nanoid} from "@reduxjs/toolkit";
+import {createTodolistAC, deleteTodolistAC} from "@/model/todolists-reducer.ts";
+
+export const deleteTaskAC = createAction<{todolistId: string, taskId: string}>('tasks/deleteTask')
+export const createTaskAC = createAction<{todolistId: string, title: string}>('tasks/createTask')
+export const changeTaskStatusAC = createAction<{todolistId: string, taskId: string, isDone: boolean}>('tasks/changeTaskStatus')
+export const changeTaskTitleAC = createAction<{todolistId: string, taskId: string, title: string}>('tasks/changeTaskTitle')
 
 const initialState: TasksState = {}
 
-export const tasksReducer = (state: TasksState = initialState, action: Actions): TasksState => {
-  switch (action.type) {
-    case 'delete_task': {
-      return {
-        ...state,
-        [action.payload.todolistId]: state[action.payload.todolistId].filter(task => task.id !== action.payload.taskId)
+export const tasksReducer = createReducer(initialState, builder => {
+  builder
+    .addCase(deleteTaskAC, (state, action) => {
+      const tasks = state[action.payload.todolistId]
+      const index = tasks.findIndex(task => task.id === action.payload.taskId)
+      if (index !== -1) {
+        tasks.splice(index, 1)
       }
-    }
-    case 'create_task': {
-      const newTask: Task = {title: action.payload.title, isDone: false, id: 'sdf'}
-      return {...state, [action.payload.todolistId]: [newTask, ...state[action.payload.todolistId]]}
-    }
-    case "change_task_status": {
-      return {
-        ...state,
-        [action.payload.todolistId]: state[action.payload.todolistId].map(task => task.id === action.payload.taskId ? {...task, isDone: action.payload.isDone} : task)
+    })
+    .addCase(createTaskAC, (state, action) => {
+      const newTask: Task = {title: action.payload.title, isDone: false, id: nanoid()}
+      state[action.payload.todolistId].unshift(newTask)
+    })
+    .addCase(changeTaskStatusAC, (state, action) => {
+      const task = state[action.payload.todolistId].find(task => task.id === action.payload.taskId)
+      if (task) {
+        task.isDone = action.payload.isDone
       }
-    }
-    case "change_task_title": {
-      return {
-        ...state,
-        [action.payload.todolistId]: state[action.payload.todolistId].map(task => task.id === action.payload.taskId ? {...task, title: action.payload.title} : task)
+    })
+    .addCase(changeTaskTitleAC, (state, action) => {
+      const task = state[action.payload.todolistId].find(task => task.id === action.payload.taskId)
+      if (task) {
+        task.title = action.payload.title
       }
-    }
-    case "create_todolist": {
-      return {...state, [action.payload.id]: []}
-    }
-    case "delete_todolist": {
-      const newState = {...state}
-      delete newState[action.payload.id]
-      return newState
-    }
-    default:
-      return state
-  }
-}
+    })
+    .addCase(createTodolistAC, (state, action) => {
+      state[action.payload.id] = []
+    })
+    .addCase(deleteTodolistAC, (state, action) => {
+      delete state[action.payload.id]
+    })
+})
 
-export const deleteTaskAC = (payload: { todolistId: string, taskId: string }) => {
-  return {type: 'delete_task', payload} as const
-}
 
-export const createTaskAC = (payload: { todolistId: string, title: string }) => {
-  return {type: 'create_task', payload} as const
-}
 
-export const changeTaskStatusAC = (payload: { todolistId: string, taskId: string, isDone: boolean }) => {
-  return {type: 'change_task_status', payload} as const
-}
-
-export const changeTaskTitleAC = (payload: { todolistId: string, taskId: string, title: string }) => {
-  return {type: 'change_task_title', payload} as const
-}
-
-export type DeleteTaskAction = ReturnType<typeof deleteTaskAC>
-export type CreateTaskAction = ReturnType<typeof createTaskAC>
-export type ChangeTaskStatusAction = ReturnType<typeof changeTaskStatusAC>
-export type ChangeTaskTitleAction = ReturnType<typeof changeTaskTitleAC>
-
-type Actions =
-    | DeleteTaskAction
-    | CreateTaskAction
-    | ChangeTaskStatusAction
-    | ChangeTaskTitleAction
-    | CreateTodolistAction
-    | DeleteTodolistAction
