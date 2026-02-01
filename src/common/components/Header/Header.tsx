@@ -1,38 +1,49 @@
-import {NavButton} from "@/common/components/NavButton/NavButton.ts";
-import {AppBar, Container, Switch, Toolbar} from "@mui/material";
-import {containerSx} from "@/Todolists/TodolistItem/TodolistItem.styles.ts";
+import { useAppDispatch, useAppSelector } from "@/common/hooks";
+import { getTheme } from "@/common/theme";
+import {
+  changeThemeModeAC,
+  selectAppStatus,
+  selectThemeMode,
+} from "@/app/app-slice.ts";
+import { AppBar, LinearProgress, Switch, Toolbar } from "@mui/material";
+import Container from "@mui/material/Container";
+import { containerSx } from "@/common/styles";
 import IconButton from "@mui/material/IconButton";
+import { NavButton } from "@/common/components";
 import MenuIcon from "@mui/icons-material/Menu";
-import {changeThemeModeAC} from "@/app/app-reducer.ts";
-import {useAppDispatch} from "@/common/hooks/useAppDispatch.ts";
-import {useAppSelector} from "@/common/hooks/useAppSelector.ts";
-import {selectThemeMode} from "@/app/app-selectors.ts";
-import {getTheme} from "@/common/theme/theme.ts";
-
 
 export const Header = () => {
-  const dispatch = useAppDispatch();
-  const themeMode = useAppSelector(selectThemeMode)
+  const themeMode = useAppSelector(selectThemeMode);
+  const status = useAppSelector(selectAppStatus);
 
-  const theme = getTheme(themeMode)
+  const dispatch = useAppDispatch();
+
+  const theme = getTheme(themeMode);
+
   const changeMode = () => {
-    dispatch(changeThemeModeAC({themeMode: themeMode === 'light' ? 'dark' : 'light'}))
-  }
+    dispatch(
+      changeThemeModeAC({
+        themeMode: themeMode === "light" ? "dark" : "light",
+      }),
+    );
+  };
+
   return (
-    <AppBar position="static" sx={{mb: '30px'}}>
+    <AppBar position="static" sx={{ mb: "30px" }}>
       <Toolbar>
-        <Container maxWidth={'lg'} sx={containerSx}>
+        <Container maxWidth={"lg"} sx={containerSx}>
           <IconButton color="inherit">
-            <MenuIcon/>
+            <MenuIcon />
           </IconButton>
           <div>
             <NavButton>Sign in</NavButton>
             <NavButton>Sign up</NavButton>
             <NavButton background={theme.palette.primary.dark}>Faq</NavButton>
-            <Switch color={'default'} onChange={changeMode}/>
+            <Switch color={"default"} onChange={changeMode} />
           </div>
         </Container>
       </Toolbar>
+      {status === "loading" && <LinearProgress />}
     </AppBar>
   );
 };
