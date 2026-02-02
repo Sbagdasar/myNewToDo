@@ -1,7 +1,8 @@
 import { selectThemeMode } from "@/app/app-slice"
-import { useAppSelector } from "@/common/hooks"
+import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
 import { type LoginInputs, loginSchema } from "@/features/auth/lib/schemas"
+import { loginTC } from "@/features/auth/model/auth-slice"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Button from "@mui/material/Button"
 import Checkbox from "@mui/material/Checkbox"
@@ -17,6 +18,8 @@ import styles from "./Login.module.css"
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
 
+  const dispatch = useAppDispatch()
+
   const theme = getTheme(themeMode)
 
   const {
@@ -31,7 +34,7 @@ export const Login = () => {
   })
 
   const onSubmit: SubmitHandler<LoginInputs> = (data) => {
-    console.log(data)
+    dispatch(loginTC(data))
     reset()
   }
 
